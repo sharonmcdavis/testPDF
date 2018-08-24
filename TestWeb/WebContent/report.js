@@ -32,6 +32,7 @@ function download(formindex)
 	var index = document.forms[formindex].cbDownload.selectedIndex;
 	var req = document.forms[formindex].cbDownload[index].value;
 	alert("download_" + req);
+	
 	if (req == 'full_excel')
 		setMethod("exportFullDepletionExcel", formindex);
 	else if (req == 'full_word')
@@ -55,4 +56,26 @@ function download(formindex)
 	else if (req == 'detail_pdf')
 		setMethod("exportDepletionDetailPDF", formindex);
 
+}
+
+//**************************************************************************
+//**************************************************************************
+//predefine NewWindow so that a focus or close is possible 
+newWindow = null
+
+function OpenWindow(pageName)
+{
+	newWindow = window.open(pageName);
+}
+
+function CloseWindow()
+{
+
+  this.close();
+	opener.focus();
+}
+
+function loadReport(pageName)
+{
+	OpenWindow(pageName);
 }

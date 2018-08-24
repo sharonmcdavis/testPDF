@@ -1,4 +1,4 @@
-package com.control;
+package control;
 
 import java.io.IOException;
 
@@ -17,7 +17,7 @@ public class ReportController extends HttpServlet {
 		{
 			HttpSession session = req.getSession();
 			//ReportUtils.getDepletionReport(paramArr, resp, session,	rptBean, req);
-			this.forward(request, response, "/WEB-INF/report1.jsp");
+			this.forward(req, resp, "/WEB-INF/report1.jsp");
 		}
 		catch (Exception ex)
 		{
