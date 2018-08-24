@@ -1,0 +1,501 @@
+package com.att.hr.execcomp.dc.controller;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Vector;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.att.hr.execcomp.common.BaseServlet;
+
+public class ReportController extends BaseServlet
+{
+	private static final int WAREHOUSE_NUM = 13;
+	private static final int VENDOR_FIELD_WIDTH = 5;
+	private static final int MONTH_FIELD_WIDTH = 2;
+	private static final int WAREHOUSE_FIELD_WIDTH = 2;
+	private static final String ZEROS31 = "0000000000000000000000000000000";
+
+	private static Vector yearList = new Vector();
+
+	public ReportController() 
+	{
+		loadYear();
+	}
+
+	public void toDepletionReport(HttpServletRequest req, HttpServletResponse resp)
+	{
+		System.out.println("toDepletion Report");
+		try
+		{
+			//retrieve values for combo boxes
+			//initial page setup
+			HttpSession session = req.getSession();
+//			System.out.println("flag = " + flag);
+
+			session.setAttribute("reportWindow", "false");
+			this.forward(req, resp, "/reports/PreDepletionReport.jsp");
+		}
+		catch (Exception ex)
+		{
+			System.out.println("forwarding to error page 6");
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void getDepletionReport(HttpServletRequest req, HttpServletResponse resp)
+	throws IOException
+	{
+		try
+		{
+			// user has selected the parameters for the Depletion Report
+			HttpSession session = req.getSession();
+			String state = req.getParameter("State");
+			String vendor = req.getParameter("Vendors");
+			String month = req.getParameter("Month");
+			String year = req.getParameter("Year");
+			String caseOption = req.getParameter("CaseOption");
+			String[] warehouse = req.getParameterValues("Warehouse");
+
+System.out.println("state = " + state);
+System.out.println("vendor = " + vendor);
+System.out.println("month = " + month);
+System.out.println("year = " + year);
+System.out.println("caseOption = " + caseOption);
+	
+			StringBuffer strwhse = new StringBuffer();
+			for (int i = 0; i < warehouse.length; i++) 
+			{
+				if ((new Integer(warehouse[i])).intValue() < 10)
+					strwhse.append("0" + warehouse[i]);
+				else
+					strwhse.append(warehouse[i]);
+			}
+	
+			StringBuffer warehouses = new StringBuffer();
+			for (int i = 0; i < (WAREHOUSE_NUM - warehouse.length); i++) 
+			{
+				warehouses.append("00");
+			}
+			warehouses.append(strwhse);
+	
+			StringBuffer vendorFieldBuf = new StringBuffer();
+			for (int i = VENDOR_FIELD_WIDTH; i > vendor.length(); i--) 
+			{
+				vendorFieldBuf.append('0');
+			}
+			vendorFieldBuf.append(vendor);
+			String vendorField = vendorFieldBuf.toString();
+	
+			String storeProcParam =	state + vendorField	+ month	+ year + warehouses	+ caseOption;
+System.out.println("vendor=  " + vendorField);	
+System.out.println("warehouses= " + warehouses);	
+
+			String[] paramArr = { storeProcParam };
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setSelectedVendor(vendor);
+//			rptBean.setSelectedState(state);
+//			rptBean.setSelectedWarehouse(warehouse);
+//			rptBean.setSelectedMonth(month);
+//			rptBean.setSelectedYear(year);
+//			rptBean.setSelectedCase(caseOption);
+//	
+//			rptBean.setContextType("text/html");
+//			ReportUtils.getDepletionReport(paramArr, resp, session,	rptBean);
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportFormattedDepletionExcel(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("application/vnd.ms-excel");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/DepletionFullReport");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportDepletionWord(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("application/msword");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/DepletionFullReport.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void getDepletionDetail(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setReportCode(req.getParameter("reportCode"));
+//			rptBean.setContextType("text/html");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/DepletionDetail.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void getFullDepletionReport(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("text/html");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/DepletionFullReport.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void getDepletionSummary(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("text/html");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/DepletionSummary.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportFormattedDepletionSumExcel(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("application/vnd.ms-excel");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/DepletionSummary.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportDepletionSumWord(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("application/msword");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/DepletionSummary.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportFormattedDepletionDetailExcel(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("application/vnd.ms-excel");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/DepletionDetail.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportDepletionDetailWord(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("application/msword");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/DepletionDetail.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportUnformattedDepletionReport(HttpServletRequest req, HttpServletResponse resp)
+	throws IOException
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportUtils.writeUnformattedDepReport(resp, session);
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportUnformattedDepletionSum(HttpServletRequest req, HttpServletResponse resp)
+	throws IOException
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportUtils.writeUnformattedDepSummary(resp, session);
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportUnformattedDepletionDetail(HttpServletRequest req, HttpServletResponse resp)
+	throws IOException
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportUtils.writeUnformattedDepDetail(resp, session);
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void toApoReport(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			//determine usertype to prepare page
+			//look into combining these methods later!!
+			HttpSession session = req.getSession();
+//			String flag = (String) session.getAttribute("userTypeFlag");
+//			if (flag != null && flag.equalsIgnoreCase("VENDOR")) 
+//			{
+//				ReportUtils.vendorReportInitialization(resp, session);
+//			} 
+//			else 
+//			{
+//				ReportUtils.empReportInitialization(resp, session);
+//			}
+			session.setAttribute("reportWindow", "false");
+			this.forward(req, resp, "/reports/PreAPOReport.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void getApoReport(HttpServletRequest req, HttpServletResponse resp)
+	throws IOException
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+			String vendor = req.getParameter("Vendors");
+			String state = req.getParameter("State");
+			String[] warehouse = req.getParameterValues("Warehouse");
+
+System.out.println("getAPO");
+System.out.println("vendor = " + vendor);
+System.out.println("state = " + state);
+	
+			StringBuffer strwhse = new StringBuffer();
+			for (int i = 0; i < warehouse.length; i++) 
+			{
+				if ((new Integer(warehouse[i])).intValue() < 10)
+					strwhse.append("0" + warehouse[i]);
+				else
+					strwhse.append(warehouse[i]);
+			}
+	
+			StringBuffer vendorFieldBuf = new StringBuffer();
+			for (int i = VENDOR_FIELD_WIDTH; i > vendor.length(); i--) 
+			{
+				vendorFieldBuf.append('0');
+			}
+			vendorFieldBuf.append(vendor);
+	
+System.out.println("whse = " + strwhse.toString());
+System.out.println("vendor = " + vendorFieldBuf.toString());
+
+			String storeProcParam = strwhse + state + vendorFieldBuf.toString() + ZEROS31;
+			String[] paramArr = { storeProcParam };
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setSelectedVendor(vendor);
+//			rptBean.setSelectedState(state);
+//			rptBean.setSelectedWarehouse(warehouse);
+//	
+//			rptBean.setContextType("text/html");
+//			ReportUtils.getAPOReport(paramArr, resp, session, rptBean);
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportUnformattedApoExcel(HttpServletRequest req, HttpServletResponse resp)
+	throws IOException
+	{
+		try
+		{
+			//unformatted
+			HttpSession session = req.getSession();
+//			ReportUtils.writeUnformattedAPOReport(resp, session);
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportFormattedApoExcel(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("application/vnd.ms-excel");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/ApoReport.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	public void exportApoWord(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			HttpSession session = req.getSession();
+//			ReportBean rptBean = (ReportBean) session.getAttribute("ReportBean");
+//			if (rptBean == null)
+//				rptBean = new ReportBean();
+//			rptBean.setContextType("application/msword");
+//			session.setAttribute("ReportBean", rptBean);
+			this.forward(req, resp, "/reports/ApoReport.jsp");
+		}
+		catch (Exception ex)
+		{
+			this.errorPage(req, resp, ex.getMessage());
+		}
+	}
+
+	private static void loadYear() 
+	{
+		int startYear = 2000;
+		Calendar cal = Calendar.getInstance();
+		int thisYear = cal.get(Calendar.YEAR);
+
+		yearList.removeAllElements();
+		for (int i = startYear; i <= thisYear; i++) 
+		{
+			yearList.addElement(Integer.toString(i));
+		}
+	}
+
+	public static Collection getYearList() 
+	{
+		return yearList;
+	}
+
+	public static String getYearsForReport(String selectedYear) 
+	{
+		StringBuffer yearBuf = new StringBuffer();
+		for (int i = 0; i < getYearList().size(); i++) 
+		{
+			if (selectedYear != null && selectedYear != "") 
+			{
+				if (selectedYear.equals((String) yearList.elementAt(i))) 
+				{
+					yearBuf.append("<OPTION SELECTED Value=" + yearList.elementAt(i)
+									+ ">" + yearList.elementAt(i) + "</OPTION>\n");
+				} 
+				else 
+				{
+					yearBuf.append("<OPTION Value="	+ yearList.elementAt(i)	+ ">"
+									+ yearList.elementAt(i)	+ "</OPTION>\n");
+				}
+			} 
+			else 
+			{
+				if (Calendar.getInstance().get(Calendar.YEAR) == ((new Integer((String) yearList.elementAt(i))).intValue())) 
+				{
+					yearBuf.append("<OPTION SELECTED Value=" + yearList.elementAt(i)
+							+ ">" + yearList.elementAt(i) + "</OPTION>\n");
+				} 
+				else 
+				{
+					yearBuf.append("<OPTION Value="	+ yearList.elementAt(i)	+ ">" 
+									+ yearList.elementAt(i) + "</OPTION>\n");
+				}
+			}
+		}
+		return yearBuf.toString();
+	}
+}

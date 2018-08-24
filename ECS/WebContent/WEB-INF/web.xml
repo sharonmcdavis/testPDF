@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>ECS2</display-name>
+  <welcome-file-list>
+    <welcome-file>homepage.jsp</welcome-file>
+  </welcome-file-list>
+  <servlet>
+    <servlet-name>DCSPDPStmtDistributionCtrl</servlet-name>
+    <servlet-class>com.att.hr.execcomp.dc.controller.DCSPDPStmtDistributionCtrl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DCSPDPStmtDistributionCtrl</servlet-name>
+    <url-pattern>/dcSPDPStmtDistribution.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>EQStmtRSDistributionCtrl</servlet-name>
+    <servlet-class>com.att.hr.execcomp.eq.controller.EQStmtRSDistributionCtrl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EQStmtRSDistributionCtrl</servlet-name>
+    <url-pattern>/eqStmtRSDistribution.do</url-pattern>
+  </servlet-mapping>
+</web-app>

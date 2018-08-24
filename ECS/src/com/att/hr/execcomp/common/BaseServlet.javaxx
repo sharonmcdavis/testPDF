@@ -1,0 +1,160 @@
+package com.att.hr.execcomp.common;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.omg.CORBA.portable.ApplicationException;
+
+import com.att.hr.execcomp.utils.Utils;
+
+public class BaseServlet extends HttpServlet {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public static final String GENERAL_PROP_FILE = "general.properties";
+	public static final String DB_PROP_FILE = "database.properties";
+	
+	public void init() 
+	{
+		System.out.println("Init of Controller");
+		//create connection pools here
+	}
+	// end init
+	
+	public void destroy() {
+		super.destroy();
+		//destroy connection pools here
+	}
+	//end destroy
+	
+	public void service (HttpServletRequest req, HttpServletResponse res)
+	throws IOException, ServletException
+	{
+		String methodName=null;
+		try
+		{
+			req.setAttribute("servletPath", req.getServletPath());
+			methodName = req.getParameter("methodName");
+			System.out.println("methodName = " + methodName);
+
+			if (methodName == null)
+			{
+				throw new Exception("No method name specified");
+			}
+			System.out.println("servletPath = " + req.getServletPath());
+			System.out.println("method = " + methodName);
+
+			Class[] arguments = {HttpServletRequest.class,HttpServletResponse.class};
+			Method method = this.getClass().getMethod(methodName,arguments);
+			method.invoke(this,new Object[]{req,res});
+		}
+		catch(ApplicationException ae) 
+		{
+	  		System.out.println("Unable to execute method 1: " + methodName);
+			//forward to error page
+    		errorPage(req, res,"An Error has occurred processing your request: " + ae.getMessage());
+		}
+		catch (IOException ioex)
+		{
+			//do nothing for a broken pipe exception
+			if (!ioex.getMessage().equalsIgnoreCase("Broken pipe") )
+			{
+				System.out.println("Unable to execute method 2: " + methodName);
+				//forward to error page
+	    		errorPage(req, res,"An Error has occurred processing your request: " + ioex.getMessage());
+			}
+  		}
+  		catch(Exception ex) 
+  		{
+			//do nothing for a broken pipe exception
+			if (!ex.getMessage().equalsIgnoreCase("Broken pipe") )
+			{
+			System.out.println("Unable to execute method 3: " + methodName);
+			ex.printStackTrace();
+			//forward to error page
+    		errorPage(req, res,"An Error has occurred processing your request: " + ex.getMessage());
+			}
+  		} 
+	}//end service
+	
+	protected void forward(HttpServletRequest req, HttpServletResponse res, String pageName)
+	{
+	    RequestDispatcher rd = req.getRequestDispatcher(pageName);
+	    try
+	    {
+      		rd.forward(req,res);
+    	}
+    	catch (IOException ioex)
+    	{
+      		ioex.printStackTrace();
+    	}
+    	catch(Exception ex)
+    	{
+			//do nothing for a broken pipe exception
+			if (!ex.getMessage().equalsIgnoreCase("Broken pipe") )
+			{
+      		ex.printStackTrace();
+			}
+    	}
+	}
+	//end forward
+
+	public void errorPage(HttpServletRequest req, HttpServletResponse res, String message)
+	{
+   		HttpSession session = req.getSession();	
+   		if (message != null)
+   		{
+			System.out.println("error = " + message);
+			session.setAttribute("errorMsg", message);
+			session.setAttribute("msgColor", "red");
+   		}
+   		else
+   		{
+	   		System.out.println("common error page = message is NULL");
+			session.setAttribute("errorMsg", Utils.getErrorMsg("NullErrorMsg"));
+			session.setAttribute("msgColor", "red");
+   		}
+		RequestDispatcher rd = req.getRequestDispatcher("/common/Errors.jsp");
+		try
+		{
+        	rd.forward(req,res);
+      	}
+      	catch (Exception ex)
+      	{
+			//do nothing for a broken pipe exception
+			if (!ex.getMessage().equalsIgnoreCase("Broken pipe") )
+			{
+        	System.out.println("caught exception on forward");
+        	ex.printStackTrace();
+			}
+      	}
+   	}
+	// end errorPage
+
+
+	// *********************************************************************************
+	// Connection Pool Helper Classes
+	// *********************************************************************************
+	protected static int initialConnections()
+	{
+		return (10);
+	}
+
+	protected static int maxConnections()
+	{
+		return (50);
+	}
+
+	// *********************************************************************************
+	// *********************************************************************************
+}
