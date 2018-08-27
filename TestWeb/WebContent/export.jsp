@@ -1,4 +1,3 @@
-%PDF-
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 
@@ -12,4 +11,8 @@ response.setDateHeader("Expires", 0);
 response.setHeader("Pragma", "public"); 
 %>
 
+<jsp:include page="pdf_header.jsp"/>
+
 There is some text here.
+
+<jsp:include page="pdf_footer.jsp"/>
